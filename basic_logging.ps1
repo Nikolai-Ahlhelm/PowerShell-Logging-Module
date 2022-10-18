@@ -19,16 +19,16 @@ class Logger
     [string] $format		#Timestamp format
     [bool] 	 $PrintToConsole	#Should entries be printed out to console
 	#LogTypeGroups
-	[string] $LTDefault
-	[string] $LTDebug
-	[string] $LTProductive
-	[string] $LTError
-	[string] $LTCritical
+	$LTDefault
+	$LTDebug
+	$LTProductive
+	$LTError
+	$LTCritical
 
 	#Constructor
     Logger(
         [string] $logFilePath,
-		[string] $logType
+		[string] $logType,
         [bool] $PrintToConsole
     )
 	{
@@ -43,21 +43,21 @@ class Logger
             $this.PrintToConsole = $PrintToConsole
         }
 		
+		#Get logtype
         if($null -eq $logType)
 		{
-			$logType = "DEFAULT"
-        }		
+			$this.LogType = "DEFAULT"
+        }else{
+			$this.LogType = $this.EvalLogType($logType)
+		}		
 		
 		#LogTypeGroups
 		$this.LTDefault 	= "ERROR","INFO","WARNING","CRITICAL"
 		$this.LTDebug 		= "ERROR","INFO","WARNING","CRITICAL","DEBUG"
-		$this.LTProductive 	= "ERROR","INFO","CRITICAL"
+		$this.LTProductive  = "ERROR","INFO","CRITICAL"
 		$this.LTError 		= "ERROR"
 		$this.LTCritical 	= "CRITICAL"
-		#Get logtype 
-		$this.LogType = EvalLogType($logType)
 		
-        
     }
 
     [void] SetLogFilePath($FilePath) {
@@ -72,94 +72,78 @@ class Logger
         $this.PrintToConsole = $BOOL
     }
 
-	[string] EvalLogType($INPUT) {
+	[string] EvalLogType($Type) {
 		if ($Type -ieq "DEFAULT" -or $Type -ieq "DEF") {
-            $type = "DEFAULT"
+            return "DEFAULT"
         }
 		elseif ($Type -ieq "DEBUG" -or $Type -ieq "DBG") {
-            $type = "DEBUG"
+            return "DEBUG"
         }
 		elseif ($Type -ieq "PRODUCTIVE" -or $Type -ieq "PROD") {
-            $type = "PRODUCTIVE"
+            return "PRODUCTIVE"
         }
 		elseif ($Type -ieq "ERROR" -or $Type -ieq "ERR") {
-            $type = "ERROR"
+            return "ERROR"
         }
 		elseif ($Type -ieq "CRITICAL" -or $Type -ieq "CRIT") {
-            $type = "CRITICAL"
+            return "CRITICAL"
         }
 		elseif ($Type -ieq "NONE") {
-            $type = "NONE"
+            return "NONE"
         }
 		else
 		{
-			$type = "DEFAULT"
+			return "DEFAULT"
 		}
-		return $type
 	}
 
     [string] Entry($Type,$Message) {
         if ($Type -ieq "ERROR" -or $Type -ieq "err" -or $Type -ieq "e") {
-            $type = "ERROR"
+            $messageType = "ERROR"
         }
         elseif ($Type -ieq "INFO" -or $Type -ieq "inf" -or $Type -ieq "i") {
-            $type = "INFO"
+            $messageType = "INFO"
         }
         elseif ($Type -ieq "WARN" -or $Type -ieq "warning" -or $Type -ieq "w") {
-            $type = "WARNING"
+            $messageType = "WARNING"
         }
         elseif ($Type -ieq "CRIT" -or $Type -ieq "critical" -or $Type -ieq "c") {
-            $type = "CRITICAL"
+            $messageType = "CRITICAL"
         }
 		elseif ($Type -ieq "DBG" -or $Type -ieq "debug" -or $Type -ieq "d") {
-            $type = "DEBUG"
+            $messageType = "DEBUG"
         }
         else {
-            $type = $Type
+            $messageType = $Type
         }
-
-
-		$messageType = $type
 		
+
 		#LogType Filter
-		if ($this.LogType -ieq "DEFAULT" -and $LTDefault -contains $messageType)
+		if ($this.LogType -ieq "DEFAULT" -and $this.LTDefault -contains $messageType)
 		{
-			$this.WriteLog($type,$Message)
+			return $this.WriteLog($messageType,$Message)
 		}
-		elseif ($this.LogType -ieq "DEBUG" -and $LTDebug -contains $messageType)
+		elseif ($this.LogType -ieq "DEBUG" -and $this.LTDebug -contains $messageType)
 		{
-			$this.WriteLog($type,$Message)
+			return $this.WriteLog($messageType,$Message)
 		}
-		elseif ($this.LogType -ieq "PRODUCTIVE" -and $LTProductive -contains $messageType)
+		elseif ($this.LogType -ieq "PRODUCTIVE" -and $this.LTProductive -contains $messageType)
 		{
-			$this.WriteLog($type,$Message)
+			return $this.WriteLog($messageType,$Message)
 		}
-		elseif ($this.LogType -ieq "ERROR" -and $LTError -contains $messageType)
+		elseif ($this.LogType -ieq "ERROR" -and $this.LTError -contains $messageType)
 		{
-			$this.WriteLog($type,$Message)
+			return $this.WriteLog($messageType,$Message)
 		}		
-		elseif ($this.LogType -ieq "CRITICAL" -and $LTCritical -contains $messageType)
+		elseif ($this.LogType -ieq "CRITICAL" -and $this.LTCritical -contains $messageType)
 		{
-			$this.WriteLog($type,$Message)
+			return $this.WriteLog($messageType,$Message)
 		}
 		else
 		{
-			#Nothing happens : Type = None
-			return ""
+			#No match with LogType found, 
+			return $this.WriteLog("CRITICAL:LOGGING","`$LogType "+$this.LogType+" not found, check LogType attribute of constructor")
 		}
-		
-		<#
-		$this.LogMessage = "["+(Get-Date -Format $this.format)+"] [$type] "+$Message
-
-		Write-Output $this.LogMessage
-        Out-File $this.logFilePath -Append -InputObject $this.LogMessage
-		
-        if($this.PrintToConsole) {
-            return $this.LogMessage
-        } 
-        else {
-            return ""
-        }#>
 
     }
 	

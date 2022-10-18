@@ -5,8 +5,11 @@ Import-Module -Name .\basic_logging.ps1
 #Arguments: LogPath, PrintToConsole
 $Log = New-Object -TypeName Logger -ArgumentList ("log.txt","DEFAULT",$TRUE)
 
-
-$Log.Entry("DEBUG", "Debug Test Message")
+$Log.Entry("Info", "Logging Mode: "+$Log.LogTypes)
 $Log.Entry("Info", "Info Test Message")
+$Log.Entry("DEBUG", "Debug Test Message")
+$Log.Entry("w", "Warning Test Message")
+$Log.Entry("crit", "Critical Test Message")
+$Log.Entry("Error", "Error Test Message")
 
 pause
