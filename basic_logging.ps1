@@ -142,7 +142,8 @@ class Logger
 		else
 		{
 			#No match with LogType found, 
-			return $this.WriteLog("CRITICAL:LOGGING","`$LogType "+$this.LogType+" not found, check LogType attribute of constructor")
+			#return $this.WriteLog("CRITICAL:LOGGING","`$LogType "+$this.LogType+" not found, check LogType attribute of constructor")
+			return ""
 		}
 
     }
