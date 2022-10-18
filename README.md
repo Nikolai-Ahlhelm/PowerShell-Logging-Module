@@ -1,4 +1,4 @@
-# Basic Logging Module for Powershell - Version 2.3
+# Basic Logging Module for Powershell - Version 2.3.1
  Basic Logging Module made for Powershell
  
  Timeformat: `dd/mm/yyyy-hh:mm:ss:ffff (ffff = milliseonds)`
@@ -58,6 +58,10 @@ _________________
 <br>
 
 # Changelog
+
+## Version 2.3.1 Bugfix
+ - Fixed false return if logmode is none or unvalid
+
 
 ## Version 2.3
  - **Logmodes/logtypes** can now be set, to only log certain log entries

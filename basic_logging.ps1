@@ -1,5 +1,5 @@
 ### Basic Powershell Logging
-#17.10.2022 - v2.3
+#18.10.2022 - v2.3.1
 
 ### USAGE
 #Import Module:		Import-Module -Name .\basic_logging.ps1
