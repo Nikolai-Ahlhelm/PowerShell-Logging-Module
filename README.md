@@ -1,23 +1,34 @@
-# Basic Logging Module for Powershell - Version 2.2
+# Basic Logging Module for Powershell - Version 2.3
  Basic Logging Module made for Powershell
  
  Timeformat: `dd/mm/yyyy-hh:mm:ss:ffff (ffff = milliseonds)`
  
 <br>
 
-## Possible Logtypes (case insensitive) 
+## Logentry types (case insensitive) 
  - INFO 	(info, inf, i)
  - WARNING  (warning, warn, w)
  - CRITICAL (critical, crit, c)
  - ERROR	(error, err, e)
+ - DEBUG    (debug, dbg, d)
  - Custom   (Just enter any string you wish)
 
 <br>
 
+## Logmode / Logtype (case insensitive)
+
+| **Type**       | **Short** | **INFO** | **WARNING** | **CRITICAL** | **ERROR** | **DEBUG** |
+|----------------|-----------|----------|-------------|--------------|-----------|-----------|
+| **DEFAULT**    | DEF       |     X    |      X      |       X      |     X     |           |
+| **DEBUG**      | DBG       |     X    |      X      |       X      |     X     |     X     |
+| **PRODUCTIVE** | PROD      |     X    |             |       X      |     X     |           |
+| **ERROR**      | ERR       |          |             |              |     X     |           |
+| **CRITICAL**   | CRIT      |          |             |       X      |           |           |
+
 ## Functions
 
 >### Contructor
->#### `New-Object -TypeName Logger -ArgumentList (string:LOGPATH,bool:PRINTTOLOG)`
+>#### `New-Object -TypeName Logger -ArgumentList (string:LOGPATH,string:LOGMODE,bool:PRINTTOLOG)`
 
 <br>
 
@@ -47,6 +58,14 @@ _________________
 <br>
 
 # Changelog
+
+## Version 2.3
+ - **Logmodes/logtypes** can now be set, to only log certain log entries
+ - New Entrytype: `DEBUG`, only displayed when Logmode is set to `DEBUG`
+ - Constructor takes a new argument `LOGTYPE`
+ - Updated `example.ps1` and `README.md`
+ - Deleted old versions folder
+
 
 ## Version 2.2
  - First char of type parameter is now accepted (case insensitive)
