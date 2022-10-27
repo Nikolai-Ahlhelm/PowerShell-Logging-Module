@@ -1,4 +1,4 @@
-# Basic Logging Module for Powershell - Version 2.3.1
+# Basic Logging Module for Powershell - Version 3.0-Dev-1
  Basic Logging Module made for Powershell
  
  Timeformat: `dd/mm/yyyy-hh:mm:ss:ffff (ffff = milliseonds)`
@@ -28,7 +28,7 @@
 ## Functions
 
 >### Contructor
->#### `New-Object -TypeName Logger -ArgumentList (string:LOGPATH,string:LOGMODE,bool:PRINTTOLOG)`
+>#### `New-Object -TypeName Logger -ArgumentList (string:LOGPATH,string:LOGMODE,bool:PRINTTOLOG,int:RETENTIONDAYS)`
 
 <br>
 
@@ -43,14 +43,18 @@
 <br>
 
 >### SetConsoleOut(BOOL)
->Activate/Deactivate console output of log mesages
+>Activate/Deactivate console output of log mesages.
 
 <br>
 
 >### SetTimeFormat(STRING)
->Set a customized timeformat
+>Set a customized timeformat.
 
 <br>
+
+>### LogCleanup(string:LOGPATH)
+>Clean logs that are older than the retention date specified in the constructor.
+>**LOGPATH must be an absolute path!**
 
 _________________
 
