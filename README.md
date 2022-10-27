@@ -63,6 +63,13 @@ _________________
 
 # Changelog
 
+## Version 3.0
+ - New LogCleanup Method
+ - New Constructor argument `RETENTIONDAYS`
+ - Changed from `ps1` to `psm1` file
+ - Fixed 12-hour format is now 24-hour format
+
+
 ## Version 2.3.1 Bugfix
  - Fixed false return if logmode is none or unvalid
 
