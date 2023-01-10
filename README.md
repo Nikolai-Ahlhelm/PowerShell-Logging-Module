@@ -1,5 +1,5 @@
-# Basic Logging Module for Powershell - Version 3.0-Dev-1
- Basic Logging Module made for Powershell
+# Logging Module for Powershell - Version 3.0-Dev-1
+ Logging Module made for Powershell
  
  Timeformat: `dd/mm/yyyy-hh:mm:ss:ffff (ffff = milliseonds)`
  
