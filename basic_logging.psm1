@@ -20,6 +20,7 @@ class Logger
 	[string] $ModulePath
     [bool] 	 $PrintToConsole#Should entries be printed out to console
 	[int] 	 $LogRetention	#Days of retention until logs are deleted
+	[string] $logColor
 
 	#LogTypeGroups
 	$LTDefault
@@ -93,6 +94,30 @@ class Logger
     [void] SetConsoleOut($BOOL) {
         $this.PrintToConsole = $BOOL
     }
+
+
+	[void] WriteColor([string[]]$Text, [string[]]$ForegroundColor) {
+
+		foreach($textPart in $Text){
+			$index = $Text.IndexOf($textPart)
+			#Write-Host "index is:",$index
+
+			$lastIndex = $Text.length - 1 
+
+			if ($index -ne $lastIndex) {
+				Write-Host $textPart -ForegroundColor $ForegroundColor[$index] -NoNewLine
+				#Write-Host "First lines"
+			}
+			else {
+				Write-Host $textPart -ForegroundColor $ForegroundColor[$index]
+				#Write-Host "Last line"
+			}
+
+		}
+
+		#Write-Host "Test" -ForegroundColor [COLOR] -BackgroundColor [COLOR] -NoNewLine
+	}
+
 
 	[string] EvalLogType($Type) {
 		if ($Type -ieq "DEFAULT" -or $Type -ieq "DEF") {
@@ -171,9 +196,26 @@ class Logger
 	
 	[string] WriteLog($type,$Message)
 	{
-		$this.LogMessage = "["+(Get-Date -Format $this.format)+"] [$type] "+$Message
+		#$this.LogMessage = "["+(Get-Date -Format $this.format)+"] [$type] "+$Message
+		$this.logColor = ""
+		switch ($type) {
+			"ERROR" 	{ $this.logColor = "Red" }
+			"INFO" 		{ $this.logColor = "Gray" }
+			"WARNING" 	{ $this.logColor = "Yellow" }
+			"CRITICAL" 	{ $this.logColor = "DarkRed" }
+			Default 	{ $this.logColor = "Gray" }
+		}
 
-		Write-Output $this.LogMessage
+
+
+		$TimeStamp = "["+(Get-Date -Format $this.format)+"] "
+		$TypeStamp = "[$type] "
+
+		$Message = $TimeStamp,$TypeStamp,$Message
+
+		#Write-Host $this.LogMessage -BackgroundColor "Red"
+		$colors = "Gray",$this.logColor,"Gray"
+		$this.WriteColor($Message, $colors)
         Out-File $this.logFilePath -Append -InputObject $this.LogMessage
 		
         if($this.PrintToConsole) {
