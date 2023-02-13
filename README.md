@@ -1,4 +1,4 @@
-# Logging Module for Powershell - Version 3.0-Dev-1
+# Logging Module for Powershell - Version 3.0-Dev-2
  Logging Module made for Powershell
  
  Timeformat: `dd/mm/yyyy-hh:mm:ss:ffff (ffff = milliseonds)`
@@ -68,6 +68,11 @@ _________________
  - New Constructor argument `RETENTIONDAYS`
  - Changed from `ps1` to `psm1` file
  - Fixed 12-hour format is now 24-hour format
+ - Log output is colorised
+   - yellow -> warning
+   - red -> error
+   - darkred -> critical
+   - grey/default -> info
 
 
 ## Version 2.3.1 Bugfix
