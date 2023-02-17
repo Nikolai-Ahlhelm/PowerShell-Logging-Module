@@ -1,5 +1,5 @@
-### Basic Powershell Logging
-#27.10.2022 - v3.0-Dev-2
+### PowerShell Logging Module
+#27.10.2022 - v3.0-Dev-3
 
 ### USAGE
 #Import Module:		Import-Module -Name .\basic_logging.ps1
@@ -10,17 +10,18 @@
 
 #Logging Types: 	Default(all except debug), Debug(all), Productive(error,crit), Error(only errors), Critical(only critical), None(no logs)
 
-class Logger
+class PSLM #PowerShell Logging Module
 {
-    [string] $LogFilePath 	#Path to log file 
-    [string] $LogDate		#Date used for log entries
-    [string] $LogMessage	#Message for log entries
-    [string] $LogType		#Logging type (Productive, Debug, etc.)
-    [string] $format		#Timestamp format
-	[string] $ModulePath
-    [bool] 	 $PrintToConsole#Should entries be printed out to console
-	[int] 	 $LogRetention	#Days of retention until logs are deleted
-	[string] $logColor
+	[string] $LogFileName		#Name of log file with file extension
+    [string] $LogFilePath 		#Path to log file must end with a \ like: .\logs\
+    [string] $LogFileFullPath 	#Full log path
+	[string] $LogDate			#Date used for log entries
+    [string] $LogMessage		#Message for log entries
+    [string] $LogType			#Logging type (Productive, Debug, etc.)
+	[string] $ModulePath		#
+    [bool] 	 $PrintToConsole	#Should entries be printed out to console
+	[string] $logColor			#Color used for entries
+	[string] $TimestampFormat 	#Format of the timestamp | default values: 
 
 	#LogTypeGroups
 	$LTDefault
@@ -29,18 +30,56 @@ class Logger
 	$LTError
 	$LTCritical
 
+	
+
 	#Constructor
-    Logger(
+    PSLM(
+		[string] $logFileName,
         [string] $logFilePath,
 		[string] $logType,
         [bool] $PrintToConsole,
-		[int] $logRetention
-		#[string] $format
+		[string] $TimestampFormat
+
     )
 	{
-        $this.logFilePath = $logFilePath
+
+		#Generate logFileName - useable variables:
+		#%dd% : Day, %MM% : months, %yyyy% : year
+		#%hh% : hour, %mm% : minutes, %ss% : seconds
+		if($null -ne $logFileName)
+		{
+			$this.LogFileName = $logFileName
+			#Set day
+			$this.LogFileName = $this.LogFileName -replace "%dd%",((Get-Date -Format "dd").ToString())
+			#Set month
+			$this.LogFileName = $this.LogFileName -replace "%MM%",((Get-Date -Format "MM").ToString())
+			#Set year
+			$this.LogFileName = $this.LogFileName -replace "%yyyy%",((Get-Date -Format "yyyy").ToString())
+			#Set hour
+			$this.LogFileName = $this.LogFileName -replace "%hh%",((Get-Date -Format "HH").ToString())
+			#Set minutes
+			$this.LogFileName = $this.LogFileName -replace "%mm%",((Get-Date -Format "mm").ToString())
+			#Set seconds
+			$this.LogFileName = $this.LogFileName -replace "%ss%",((Get-Date -Format "ss").ToString())
+
+		}
+
+		#Get logFilePath
+		if($null -eq $logFilePath)
+		{
+			$this.LogFilePath = ".\"
+		} else {
+			$this.LogFilePath = $logFilePath
+		}
+        
+		# Set full log path
+		$this.LogFileFullPath = $this.LogFilePath+$this.LogFileName
+		Write-Host "Path:"+$this.LogFilePath+"  Name:"+$this.LogFileName
+
+
+		# Set LogDate
         $this.LogDate = Get-Date -Format "dd/MM/yyyy"
-		$this.format = "dd/MM/yyyy-HH:mm:ss:ffff"
+
 		### Eval. Log Type Fnc
         if($null -eq $PrintToConsole)
 		{
@@ -55,32 +94,40 @@ class Logger
 			$this.LogType = "DEFAULT"
         }else{
 			$this.LogType = $this.EvalLogType($logType)
-		}	
+		}
 		
-		#Get log retention
-        if($null -eq $logRetention)
+		#Get timestamp format
+		if($null -eq $TimestampFormat) 
 		{
-			$this.LogRetention = -30
-        }else{
-			$this.LogRetention = $logRetention
-		}	
+			switch ($TimestampFormat) {
+				"default" { $this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff" }
+				"time" { $this.TimestampFormat = "HH:mm:ss.ffff" }
+				"day" { $this.TimestampFormat = "dd-MM-yyyy" }
+				Default {  
+					#Check if custom format is valid, else use default
+					try {
+						Get-Date -Format $TimestampFormat
+						$this.TimestampFormat = $TimestampFormat
+					}
+					catch {
+						$this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff"
+					}
+				
+				}
+			
+			}
+
+		} else {
+			$this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff"
+		}
+		
 		
 		#LogTypeGroups
 		$this.LTDefault 	= "ERROR","INFO","WARNING","CRITICAL"
 		$this.LTDebug 		= "ERROR","INFO","WARNING","CRITICAL","DEBUG"
 		$this.LTProductive  = "ERROR","INFO","CRITICAL"
 		$this.LTError 		= "ERROR"
-		$this.LTCritical 	= "CRITICAL"
-
-		#Get Log format
-		<#if ($format -ne $NULL) {
-			$this.format = $format
-		}
-		else {
-			$this.format = "dd/MM/yyyy-HH:mm:ss:ffff"
-		}#>
-		
-		
+		$this.LTCritical 	= "CRITICAL"	
     }
 
     [void] SetLogFilePath($FilePath) {
@@ -88,7 +135,7 @@ class Logger
     }
 
     [void] SetTimeFormat($Format) {
-        $this.format = $Format
+        $this.TimestampFormat = $Format
     }
 
     [void] SetConsoleOut($BOOL) {
@@ -100,22 +147,18 @@ class Logger
 
 		foreach($textPart in $Text){
 			$index = $Text.IndexOf($textPart)
-			#Write-Host "index is:",$index
 
 			$lastIndex = $Text.length - 1 
 
 			if ($index -ne $lastIndex) {
 				Write-Host $textPart -ForegroundColor $ForegroundColor[$index] -NoNewLine
-				#Write-Host "First lines"
 			}
 			else {
 				Write-Host $textPart -ForegroundColor $ForegroundColor[$index]
-				#Write-Host "Last line"
 			}
 
 		}
 
-		#Write-Host "Test" -ForegroundColor [COLOR] -BackgroundColor [COLOR] -NoNewLine
 	}
 
 
@@ -144,7 +187,7 @@ class Logger
 		}
 	}
 
-    [string] Entry($Type,$Message) {
+    [void] Entry($Type,$Message) {
         if ($Type -ieq "ERROR" -or $Type -ieq "err" -or $Type -ieq "e") {
             $messageType = "ERROR"
         }
@@ -168,94 +211,85 @@ class Logger
 		#LogType Filter
 		if ($this.LogType -ieq "DEFAULT" -and $this.LTDefault -contains $messageType)
 		{
-			return $this.WriteLog($messageType,$Message)
+			$this.WriteLog($messageType,$Message)
 		}
 		elseif ($this.LogType -ieq "DEBUG" -and $this.LTDebug -contains $messageType)
 		{
-			return $this.WriteLog($messageType,$Message)
+			$this.WriteLog($messageType,$Message)
 		}
 		elseif ($this.LogType -ieq "PRODUCTIVE" -and $this.LTProductive -contains $messageType)
 		{
-			return $this.WriteLog($messageType,$Message)
+			$this.WriteLog($messageType,$Message)
 		}
 		elseif ($this.LogType -ieq "ERROR" -and $this.LTError -contains $messageType)
 		{
-			return $this.WriteLog($messageType,$Message)
+			$this.WriteLog($messageType,$Message)
 		}		
 		elseif ($this.LogType -ieq "CRITICAL" -and $this.LTCritical -contains $messageType)
 		{
-			return $this.WriteLog($messageType,$Message)
-		}
-		else
-		{
-			#No match with LogType found, 
-			return ""
+			$this.WriteLog($messageType,$Message)
 		}
 
     }
 	
-	[string] WriteLog($type,$Message)
+	[void] WriteLog($type,$Message)
 	{
-		#$this.LogMessage = "["+(Get-Date -Format $this.format)+"] [$type] "+$Message
+		#$this.LogMessage = "["+(Get-Date -Format $this.TimestampFormat)+"] [$type] "+$Message
 		$this.logColor = ""
 		switch ($type) {
 			"ERROR" 	{ $this.logColor = "Red" }
 			"INFO" 		{ $this.logColor = "Gray" }
 			"WARNING" 	{ $this.logColor = "Yellow" }
 			"CRITICAL" 	{ $this.logColor = "DarkRed" }
+			"DEBUG"		{ $this.logColor = "DarkGreen" }
 			Default 	{ $this.logColor = "Gray" }
 		}
 
 
 
-		$TimeStamp = "["+(Get-Date -Format $this.format)+"] "
+		$TimeStamp = "["+(Get-Date -Format $this.TimestampFormat)+"] "
 		$TypeStamp = "[$type] "
 
-		$Message = $TimeStamp,$TypeStamp,$Message
-
-		#Write-Host $this.LogMessage -BackgroundColor "Red"
+		$MessageOut = "$TimeStamp $TypeStamp $Message"
 		$colors = "Gray",$this.logColor,"Gray"
-		$this.WriteColor($Message, $colors)
-        Out-File $this.logFilePath -Append -InputObject $this.LogMessage
+        Out-File $this.LogFileFullPath -Append -InputObject $MessageOut
 		
         if($this.PrintToConsole) {
-            return $this.LogMessage
-        } 
-        else {
-            return ""
+			$MessageArray = $TimeStamp,$TypeStamp,$Message
+            $this.WriteColor($MessageArray, $colors)
         }
 	}
 
-	[void] LogCleanup($LogFolder)
+	[void] LogCleanup($RetentionDays)
 	{
-		Write-Output "CLEANING..."
-		if($this.LogRetention -gt 0)
+
+		$this.Entry("d","Cleanup started...")
+		if($RetentionDays -gt 0)
 		{
-			$this.LogRetention = $this.LogRetention * -1
+			$RetentionDays = $RetentionDays * -1
 		}
 		
-		$RetentionDate = (Get-Date).AddDays($this.LogRetention)
-		$RetentionDate = $RetentionDate.ToString("yyyyMMddHHmmss")
-		$this.Entry("d","Log retention date = "+$RetentionDate)
+		$RetentionDate = (Get-Date).AddDays($RetentionDays)
+		$this.Entry("d","Log retention date : "+$RetentionDate)
 
-		$logFiles = Get-ChildItem $LogFolder
+		$logFiles = Get-ChildItem $this.LogFilePath
 
 		foreach ($log in $logFiles)
 		{
-			$fileDate = $log.name -replace "_"
-			$fileDate = $fileDate -replace ".log"
-			$this.Entry("d","Checking: "+$log.FullName+" fileDate: "+$fileDate)
-			$this.Entry("d","FD: "+$fileDate+" RetDt: "+$RetentionDate)
-			if($fileDate -lt $RetentionDate)
+			$this.Entry("d","Checking: "+$log.FullName)
+			$this.Entry("d","Filedate: "+$log.LastWriteTime+" RetDt: "+$RetentionDate)
+			if($log.LastWriteTime -lt $RetentionDate)
 			{
 				try {
-					$RmvItemPath = $LogFolder+$log.name
+					$RmvItemPath = $this.LogFilePath+$log.name
 					Remove-Item $RmvItemPath
-					$this.Entry("d","Deleting: "+$log.name)
+					$this.Entry("d","File deleted, older than retention day: "+$log.name)
 				}
 				catch {
-					$this.Entry("e","[LogCleanup] Deletion failed >>"+$_.Exception.Message)
+					$this.Entry("e","LogCleanup deletion failed for "+$log.name+" >> "+$_.Exception.Message)
 				}
+			} else {
+				$this.Entry("d","File "+$log.name+" above retention day")
 			}
 		}
 	}
