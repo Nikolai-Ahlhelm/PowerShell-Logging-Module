@@ -4,7 +4,7 @@
 #>
 
 #Import PSLM like this:
-Using module .\basic_logging.psm1
+Using module .\PSLM.psm1
 
 #Arguments: LogName[STRING], LogPath[STRING], LogMode[STRING], PrintToConsole[BOOL], [string] $TimestampFormat, RetentionDays[INT]
 #LogPath: when using relative paths use  .\[DIRNAME]\  else you'll get errors.
