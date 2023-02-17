@@ -20,7 +20,6 @@ class PSLM #PowerShell Logging Module
     [string] $LogType			#Logging type (Productive, Debug, etc.)
 	[string] $ModulePath		#
     [bool] 	 $PrintToConsole	#Should entries be printed out to console
-	[int] 	 $LogRetention		#Days of retention until logs are deleted
 	[string] $logColor			#Color used for entries
 	[string] $TimestampFormat 	#Format of the timestamp | default values: 
 
@@ -39,8 +38,7 @@ class PSLM #PowerShell Logging Module
         [string] $logFilePath,
 		[string] $logType,
         [bool] $PrintToConsole,
-		[string] $TimestampFormat,
-		[int] $logRetention
+		[string] $TimestampFormat
 
     )
 	{
@@ -123,15 +121,6 @@ class PSLM #PowerShell Logging Module
 			$this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff"
 		}
 		
-		
-		
-		#Get log retention
-        if($null -eq $logRetention)
-		{
-			$this.LogRetention = -30
-        }else{
-			$this.LogRetention = $logRetention
-		}	
 		
 		#LogTypeGroups
 		$this.LTDefault 	= "ERROR","INFO","WARNING","CRITICAL"

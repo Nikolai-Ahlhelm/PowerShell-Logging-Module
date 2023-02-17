@@ -1,7 +1,5 @@
-# Logging Module for Powershell - Version 3.0-Dev-3
+# PowerShell Logging Module - Version 3.0-Dev-3
  Logging Module made for Powershell
- 
- Timeformat: `dd/mm/yyyy-hh:mm:ss:ffff (ffff = milliseonds)`
  
 <br>
 
@@ -25,10 +23,45 @@
 | **ERROR**      | ERR       |          |             |              |     X     |           |
 | **CRITICAL**   | CRIT      |          |             |       X      |           |           |
 
-## Functions
+<br>
 
->### Contructor
->#### `New-Object -TypeName Logger -ArgumentList (string:LOGPATH,string:LOGMODE,bool:PRINTTOLOG,int:RETENTIONDAYS)`
+---
+
+<br>
+
+## Contructor
+>New-Object -TypeName PSLM -ArgumentList (string:LOGNAME,string:LOGPATH,string:LOGMODE,bool:PRINTTOCONSOLE,string:TIMESTAMPFORMAT)
+
+<br>
+
+### Attributes
+
+> LOGNAME:  **"%yyyy%-%MM%-%dd%-log.txt"** <br>
+> Use: <br> ``%dd%`` : Day, ``%MM%`` : months, ``%yyyy%`` : year, ``%hh%`` : hour,``%mm%`` : minutes, ``%ss%`` : seconds <br>
+> They will be replaced with the acording value e.g. %yyyy% = 2023
+
+> LOGPATH: **".\logs\"** or **"C:\the\path\"** <br>
+> Important: A backslash **must** be placed at the end of the path.
+
+> LOGMODE: **"Default"** <br>
+> Choose one of the logmodes listed above.
+
+> PRINTTOCONSOLE: **\$TRUE** or **\$FALSE** <br>
+> Enable or disable console output. 
+
+> TIMESTAMPFORMAT: **"default"**
+> Set timestamp forat, use predefined formats: <br>
+> **"default" :** dd-MM-yyyy-HH:mm:ss.ffff <br>
+> **"time" :** <br>
+> **"day" :** <br>
+> Or define your own, for examples check the official Microsoft Docs [here](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.3#examples).
+
+
+<br>
+
+---
+
+## Functions
 
 <br>
 
@@ -52,9 +85,10 @@
 
 <br>
 
->### LogCleanup(string:LOGPATH)
+>### LogCleanup(int:RETENTIONDAYS)
 >Clean logs that are older than the retention date specified in the constructor.
->**LOGPATH must be an absolute path!**
+
+<br>
 
 _________________
 
@@ -64,11 +98,13 @@ _________________
 # Changelog
 
 ## Version 3.0
+ - Changed name from **Logger** to **PSLM**
  - New LogCleanup Method
- - New Constructor argument `RETENTIONDAYS`
+ - New Constructor argument `LOGNAME`
+ - New Constructor argument `TIMESTAMPFORMAT`
  - Changed from `ps1` to `psm1` file
  - Fixed 12-hour format is now 24-hour format
- - Log output is colorised
+ - Log output is colored now
    - yellow -> warning
    - red -> error
    - darkred -> critical
