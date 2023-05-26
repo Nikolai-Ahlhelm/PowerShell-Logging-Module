@@ -49,20 +49,24 @@ class PSLM #PowerShell Logging Module
 		if($null -ne $logFileName)
 		{
 			$this.LogFileName = $logFileName
-			#Set day
-			$this.LogFileName = $this.LogFileName -replace "%dd%",((Get-Date -Format "dd").ToString())
-			#Set month
-			$this.LogFileName = $this.LogFileName -replace "%MM%",((Get-Date -Format "MM").ToString())
-			#Set year
-			$this.LogFileName = $this.LogFileName -replace "%yyyy%",((Get-Date -Format "yyyy").ToString())
-			#Set hour
-			$this.LogFileName = $this.LogFileName -replace "%hh%",((Get-Date -Format "HH").ToString())
-			#Set minutes
-			$this.LogFileName = $this.LogFileName -replace "%mm%",((Get-Date -Format "mm").ToString())
-			#Set seconds
-			$this.LogFileName = $this.LogFileName -replace "%ss%",((Get-Date -Format "ss").ToString())
-
+					}
+		else {
+			$this.LogFileName = log-%yyyy%-%MM%-%dd%.txt
 		}
+		#Set day
+		$this.LogFileName = $this.LogFileName -replace "%dd%",((Get-Date -Format "dd").ToString())
+		#Set month
+		$this.LogFileName = $this.LogFileName -replace "%MM%",((Get-Date -Format "MM").ToString())
+		#Set year
+		$this.LogFileName = $this.LogFileName -replace "%yyyy%",((Get-Date -Format "yyyy").ToString())
+		#Set hour
+		$this.LogFileName = $this.LogFileName -replace "%hh%",((Get-Date -Format "HH").ToString())
+		#Set minutes
+		$this.LogFileName = $this.LogFileName -replace "%mm%",((Get-Date -Format "mm").ToString())
+		#Set seconds
+		$this.LogFileName = $this.LogFileName -replace "%ss%",((Get-Date -Format "ss").ToString())
+
+
 
 		#Get logFilePath
 		if($null -eq $logFilePath)
@@ -74,7 +78,7 @@ class PSLM #PowerShell Logging Module
         
 		# Set full log path
 		$this.LogFileFullPath = $this.LogFilePath+$this.LogFileName
-		Write-Host "Path:"+$this.LogFilePath+"  Name:"+$this.LogFileName
+		Write-Host "Path:" $this.LogFilePath "  Name:" $this.LogFileName
 
 
 		# Set LogDate
