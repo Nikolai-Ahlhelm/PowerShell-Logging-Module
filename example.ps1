@@ -8,7 +8,7 @@ Using module .\PSLM.psm1
 
 #Arguments: LogName[STRING], LogPath[STRING], LogMode[STRING], PrintToConsole[BOOL], [string] $TimestampFormat, RetentionDays[INT]
 #LogPath: when using relative paths use  .\[DIRNAME]\  else you'll get errors.
-$Log = New-Object -TypeName PSLM -ArgumentList ("log-%hh%-%mm%-%ss%.txt",".\logs\","DEBUG",$TRUE,"default",7)
+$Log = New-Object -TypeName PSLM -ArgumentList ("log-%hh%-%mm%-%ss%.txt",".\logs\","DEBUG",$TRUE,"default")
 
 $Log.Entry("Info", "Logging Mode: "+$Log.LogTypes)
 $Log.Entry("Info", "Info Test Message")
