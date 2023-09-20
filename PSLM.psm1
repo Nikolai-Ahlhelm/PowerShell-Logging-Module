@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-#26.05.2023 - v3.0
+#27.06.2023 - v3.0.1
 
 ### USAGE
 #Import Module:		Import-Module -Name .\basic_logging.ps1
@@ -9,6 +9,8 @@
 #LogEntry:			$Log.Entry("Info", "Test Message") ## $Log.Entry(TYPE, MESSAGE)
 
 #Logging Types: 	Default(all except debug), Debug(all), Productive(error,crit), Error(only errors), Critical(only critical), None(no logs)
+
+#LogCleanup:		$this.LogCleanup(int:RETENTIONDAYS)
 
 class PSLM #PowerShell Logging Module
 {
@@ -242,7 +244,7 @@ class PSLM #PowerShell Logging Module
 		$this.logColor = ""
 		switch ($type) {
 			"ERROR" 	{ $this.logColor = "Red" }
-			"INFO" 		{ $this.logColor = "Gray" }
+			"INFO" 		{ $this.logColor = "DarkCyan" }
 			"WARNING" 	{ $this.logColor = "Yellow" }
 			"CRITICAL" 	{ $this.logColor = "DarkRed" }
 			"DEBUG"		{ $this.logColor = "DarkGreen" }
@@ -267,6 +269,8 @@ class PSLM #PowerShell Logging Module
 	[void] LogCleanup($RetentionDays)
 	{
 
+		$cleanedFiles = 0
+
 		$this.Entry("d","Cleanup started...")
 		if($RetentionDays -gt 0)
 		{
@@ -288,6 +292,7 @@ class PSLM #PowerShell Logging Module
 					$RmvItemPath = $this.LogFilePath+$log.name
 					Remove-Item $RmvItemPath
 					$this.Entry("d","File deleted, older than retention day: "+$log.name)
+					$cleanedFiles++
 				}
 				catch {
 					$this.Entry("e","LogCleanup deletion failed for "+$log.name+" >> "+$_.Exception.Message)
@@ -296,5 +301,8 @@ class PSLM #PowerShell Logging Module
 				$this.Entry("d","File "+$log.name+" above retention day")
 			}
 		}
+
+		$this.Entry("i", "$cleanedFiles delete by LogCleanp")
+
 	}
 }
