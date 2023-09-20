@@ -1,4 +1,4 @@
-# PowerShell Logging Module - Version 3.0.0
+# PowerShell Logging Module - Version 3.0.1
  Logging Module made for Powershell
  
 <br>
@@ -96,6 +96,11 @@ _________________
 <br>
 
 # Changelog
+
+## Version 3.0.1
+ - INFO color changed to dark cyan
+ - LogCleanup now logs how many files got deleted
+
 
 ## Version 3.0
  - Changed name from **Logger** to **PSLM**
