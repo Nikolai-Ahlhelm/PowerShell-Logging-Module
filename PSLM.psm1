@@ -225,7 +225,7 @@ class PSLM #PowerShell Logging Module
         else {
             $messageType = $Type
         }
-		return $Type
+		return $messageType
 	}
 
 

@@ -1,4 +1,4 @@
-# PowerShell Logging Module - Version 3.0.1
+# PowerShell Logging Module - Version 3.1.0
  Logging Module made for Powershell
  
 <br>
