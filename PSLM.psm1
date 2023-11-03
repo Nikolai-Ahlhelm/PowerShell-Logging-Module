@@ -40,7 +40,6 @@ class PSLM #PowerShell Logging Module
 		[string] $logType,
         [bool] $PrintToConsole,
 		[string] $TimestampFormat
-
     )
 	{
 
@@ -77,8 +76,10 @@ class PSLM #PowerShell Logging Module
 			$this.LogFilePath = $logFilePath
 		}
         
+		$this.LogFilePath = $logFilePath
+
 		#Check if path has backslash or slash at the end
-		if(-not($this.LogFilePath[$this.LogFilePath-1] -eq "/") -or ($this.LogFilePath[$this.LogFilePath-1] -eq "\")) 
+		if(-not($this.LogFilePath[$this.LogFilePath.Length-1] -eq "/") -or ($this.LogFilePath[$this.LogFilePath.Length-1] -eq "\")) 
 		{
 			# Append '\'
 			$this.LogFilePath = $this.LogFilePath+"\"
@@ -87,7 +88,7 @@ class PSLM #PowerShell Logging Module
 
 		# Set full log path
 		$this.LogFileFullPath = $this.LogFilePath+$this.LogFileName
-		Write-Host "Path:" $this.LogFilePath "  Name:" $this.LogFileName
+		#DEBUG#Write-Host "Path:" $this.LogFilePath "  Name:" $this.LogFileName
 
 
 		# Set LogDate
@@ -142,16 +143,20 @@ class PSLM #PowerShell Logging Module
 
 	# Change log file path
     [void] SetLogFilePath($FilePath) {
+		$FilePath = Resolve-Path $FilePath
+		$this.Entry("d","SetLogFilePath: $FilePath")
         $this.logFilePath = $FilePath
     }
 
 	# Change time stamp format
     [void] SetTimeFormat($Format) {
+		$this.Entry("d","SetTimeFormat: $Format")
         $this.TimestampFormat = $Format
     }
 
 	# Enable / Disable console output
     [void] SetConsoleOut($BOOL) {
+		$this.Entry("d","SetConsoleOut: $BOOL")
         $this.PrintToConsole = $BOOL
     }
 
