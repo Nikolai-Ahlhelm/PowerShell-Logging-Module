@@ -1,10 +1,10 @@
 ### PowerShell Logging Module
-#27.06.2023 - v3.0.1
+# 02.11.2023 - v3.1.0
 
 ### USAGE
-#Import Module:		Import-Module -Name .\basic_logging.ps1
+#Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
 
-#Create Log Obj:	$Log = New-Object -TypeName Logger -ArgumentList (LogFileName:"log.txt",PrintToConsole:$TRUE)
+#Create Log Obj:	$PSLM = New-Object -TypeName PSLM -ArgumentList ("log-%yyyy%-%MM%-%dd%.txt",".\","DEFAULT",$TRUE,"time")
 
 #LogEntry:			$Log.Entry("Info", "Test Message") ## $Log.Entry(TYPE, MESSAGE)
 
@@ -32,7 +32,6 @@ class PSLM #PowerShell Logging Module
 	$LTError
 	$LTCritical
 
-	
 
 	#Constructor
     PSLM(
@@ -47,7 +46,7 @@ class PSLM #PowerShell Logging Module
 
 		#Generate logFileName - useable variables:
 		#%dd% : Day, %MM% : months, %yyyy% : year
-		#%hh% : hour, %mm% : minutes, %ss% : seconds
+		#%hh% : hour, %m% : minutes, %ss% : seconds
 		if($null -ne $logFileName)
 		{
 			$this.LogFileName = $logFileName
@@ -64,7 +63,7 @@ class PSLM #PowerShell Logging Module
 		#Set hour
 		$this.LogFileName = $this.LogFileName -replace "%hh%",((Get-Date -Format "HH").ToString())
 		#Set minutes
-		$this.LogFileName = $this.LogFileName -replace "%mm%",((Get-Date -Format "mm").ToString())
+		$this.LogFileName = $this.LogFileName -replace "%m%",((Get-Date -Format "mm").ToString())
 		#Set seconds
 		$this.LogFileName = $this.LogFileName -replace "%ss%",((Get-Date -Format "ss").ToString())
 
@@ -78,6 +77,14 @@ class PSLM #PowerShell Logging Module
 			$this.LogFilePath = $logFilePath
 		}
         
+		#Check if path has backslash or slash at the end
+		if(-not($this.LogFilePath[$this.LogFilePath-1] -eq "/") -or ($this.LogFilePath[$this.LogFilePath-1] -eq "\")) 
+		{
+			# Append '\'
+			$this.LogFilePath = $this.LogFilePath+"\"
+		}
+		$this.LogFilePath = Resolve-Path $this.LogFilePath
+
 		# Set full log path
 		$this.LogFileFullPath = $this.LogFilePath+$this.LogFileName
 		Write-Host "Path:" $this.LogFilePath "  Name:" $this.LogFileName
@@ -103,7 +110,7 @@ class PSLM #PowerShell Logging Module
 		}
 		
 		#Get timestamp format
-		if($null -eq $TimestampFormat) 
+		if($null -ne $TimestampFormat) 
 		{
 			switch ($TimestampFormat) {
 				"default" { $this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff" }
@@ -118,11 +125,8 @@ class PSLM #PowerShell Logging Module
 					catch {
 						$this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff"
 					}
-				
 				}
-			
 			}
-
 		} else {
 			$this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff"
 		}
@@ -136,14 +140,17 @@ class PSLM #PowerShell Logging Module
 		$this.LTCritical 	= "CRITICAL"	
     }
 
+	# Change log file path
     [void] SetLogFilePath($FilePath) {
         $this.logFilePath = $FilePath
     }
 
+	# Change time stamp format
     [void] SetTimeFormat($Format) {
         $this.TimestampFormat = $Format
     }
 
+	# Enable / Disable console output
     [void] SetConsoleOut($BOOL) {
         $this.PrintToConsole = $BOOL
     }
@@ -193,8 +200,9 @@ class PSLM #PowerShell Logging Module
 		}
 	}
 
-    [void] Entry($Type,$Message) {
-        if ($Type -ieq "ERROR" -or $Type -ieq "err" -or $Type -ieq "e") {
+	# SelectEntryType | called by $this.Entry
+	[string] SelectEntryType($Type) {
+		if ($Type -ieq "ERROR" -or $Type -ieq "err" -or $Type -ieq "e") {
             $messageType = "ERROR"
         }
         elseif ($Type -ieq "INFO" -or $Type -ieq "inf" -or $Type -ieq "i") {
@@ -212,6 +220,14 @@ class PSLM #PowerShell Logging Module
         else {
             $messageType = $Type
         }
+		return $Type
+	}
+
+
+    [void] Entry($Type,$Message) {
+        
+		# Get Type
+		$messageType = $this.SelectEntryType($Type)
 		
 
 		#LogType Filter
@@ -235,6 +251,11 @@ class PSLM #PowerShell Logging Module
 		{
 			$this.WriteLog($messageType,$Message)
 		}
+		# For custom entry type 
+		elseif (-not ($this.LTDebug -contains $messageType)) 
+		{
+			$this.WriteLog($messageType,$Message)
+		}
 
     }
 	
@@ -252,26 +273,36 @@ class PSLM #PowerShell Logging Module
 		}
 
 
-
+		#Create TimeStamp string
 		$TimeStamp = "["+(Get-Date -Format $this.TimestampFormat)+"] "
+
+		#Create TypeStamp string
 		$TypeStamp = "[$type] "
 
+		#Build Message
 		$MessageOut = "$TimeStamp $TypeStamp $Message"
+
+		#Message color 
 		$colors = "Gray",$this.logColor,"Gray"
+
+		#Message -> file
         Out-File $this.LogFileFullPath -Append -InputObject $MessageOut
 		
+		#Message -> console
         if($this.PrintToConsole) {
 			$MessageArray = $TimeStamp,$TypeStamp,$Message
+			#Call function for colored output
             $this.WriteColor($MessageArray, $colors)
         }
 	}
 
+	# $PSLM.LogCleanup(n) > deletes logs older than 14 n days
 	[void] LogCleanup($RetentionDays)
 	{
 
 		$cleanedFiles = 0
 
-		$this.Entry("d","Cleanup started...")
+		$this.Entry("i","Cleanup started...")
 		if($RetentionDays -gt 0)
 		{
 			$RetentionDays = $RetentionDays * -1
