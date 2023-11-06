@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-# 02.11.2023 - v3.1.0
+# 06.11.2023 - v3.1.0
 
 ### USAGE
 #Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
@@ -23,7 +23,7 @@ class PSLM #PowerShell Logging Module
 	[string] $ModulePath		#
     [bool] 	 $PrintToConsole	#Should entries be printed out to console
 	[string] $logColor			#Color used for entries
-	[string] $TimestampFormat 	#Format of the timestamp | default values: 
+	[string] $TimestampFormat 	#Format of the timestamp
 
 	#LogTypeGroups
 	$LTDefault
@@ -75,7 +75,7 @@ class PSLM #PowerShell Logging Module
 		} else {
 			$this.LogFilePath = $logFilePath
 		}
-        
+
 		$this.LogFilePath = $logFilePath
 
 		#Check if path has backslash or slash at the end
@@ -109,7 +109,7 @@ class PSLM #PowerShell Logging Module
         }else{
 			$this.LogType = $this.EvalLogType($logType)
 		}
-		
+
 		#Get timestamp format
 		if($null -ne $TimestampFormat) 
 		{
@@ -131,14 +131,14 @@ class PSLM #PowerShell Logging Module
 		} else {
 			$this.TimestampFormat = "dd-MM-yyyy-HH:mm:ss.ffff"
 		}
-		
-		
+
+
 		#LogTypeGroups
 		$this.LTDefault 	= "ERROR","INFO","WARNING","CRITICAL"
 		$this.LTDebug 		= "ERROR","INFO","WARNING","CRITICAL","DEBUG"
 		$this.LTProductive  = "ERROR","INFO","CRITICAL"
 		$this.LTError 		= "ERROR"
-		$this.LTCritical 	= "CRITICAL"	
+		$this.LTCritical 	= "CRITICAL"
     }
 
 	# Change log file path

@@ -19,7 +19,7 @@ $Log.Entry("crit", "Critical Test Message")
 $Log.Entry("Error", "Error Test Message")
 
 #Log Cleanup function | Arguments: RetentionDays[INT] (maximum age in days)
-$Log.LogCleanup(14)
+$Log.LogCleanup(9999)
 
 
 pause
