@@ -1,13 +1,13 @@
-# PowerShell Logging Module - Version 3.0.1
+# PowerShell Logging Module - Version 3.1.0
  Logging Module made for Powershell
  
 <br>
 
 ## Logentry types (case insensitive) 
- - INFO 	(info, inf, i)
+ - INFO 	  (info, inf, i)
  - WARNING  (warning, warn, w)
  - CRITICAL (critical, crit, c)
- - ERROR	(error, err, e)
+ - ERROR	  (error, err, e)
  - DEBUG    (debug, dbg, d)
  - Custom   (Just enter any string you wish)
 
@@ -37,11 +37,10 @@
 ### Attributes
 
 > LOGNAME:  **"%yyyy%-%MM%-%dd%-log.txt"** <br>
-> Use: <br> ``%dd%`` : Day, ``%MM%`` : months, ``%yyyy%`` : year, ``%hh%`` : hour,``%mm%`` : minutes, ``%ss%`` : seconds <br>
+> Use: <br> ``%dd%`` : Day, ``%MM%`` : months, ``%yyyy%`` : year, ``%hh%`` : hour,``%m%`` : minutes, ``%ss%`` : seconds <br>
 > They will be replaced with the acording value e.g. %yyyy% = 2023
 
 > LOGPATH: **".\logs\"** or **"C:\the\path\"** <br>
-> Important: A backslash **must** be placed at the end of the path.
 
 > LOGMODE: **"Default"** <br>
 > Choose one of the logmodes listed above.
@@ -66,12 +65,12 @@
 <br>
 
 >### Entry(TYPE,MESSAGE)
->Creates a single log entry.
+>Creates a single log entry with timestamp.
 
 <br>
 
 >### SetLogFilePath(PATH)
->Set the path to the log file.
+>Set/change the path to the log file.
 
 <br>
 
@@ -81,12 +80,13 @@
 <br>
 
 >### SetTimeFormat(STRING)
->Set a customized timeformat.
+>Set/change the timeformat to a customized format.
 
 <br>
 
 >### LogCleanup(int:RETENTIONDAYS)
->Clean logs that are older than the retention date specified in the constructor.
+>Clean logs that are older than the retention date specified in the constructor. <br>
+>Warning: This function deletes **all** files inside the logfoler, that are older than the retentiondays! This also effects non log files, because the tool has no feature to detect if the file is a log file or something else! 
 
 <br>
 
@@ -96,6 +96,13 @@ _________________
 <br>
 
 # Changelog
+
+## Version 3.1.0
+- Feature: Info bracket colored in darkcyan
+- Feature: Add backslash to end of log path, if not already set by user
+- Change: Example file import .psd1 instead od .psm1
+- Fix: Timestamp change from minutes from %mm% to %m%
+- Fix: Unable to change timestamp format in constructor
 
 ## Version 3.0.1
  - INFO color changed to dark cyan
