@@ -1,6 +1,8 @@
 # PowerShell Logging Module - Version 3.2.0
  Logging Module made for Powershell
- 
+
+![PSLM Example Image](img/example.png)
+
 <br>
 
 ## Logentry types (case insensitive) 
