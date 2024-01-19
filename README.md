@@ -1,4 +1,4 @@
-# PowerShell Logging Module - Version 3.1.0
+# PowerShell Logging Module - Version 3.2.0
  Logging Module made for Powershell
  
 <br>
@@ -96,6 +96,11 @@ _________________
 <br>
 
 # Changelog
+
+## Version 3.2.0
+- Various code optimisations
+- Removed the `"Unknown"` company from the `psd1`-file
+-  
 
 ## Version 3.1.0
 - Feature: Info bracket colored in darkcyan

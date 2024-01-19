@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-# 06.11.2023 - v3.1.0
+# 19.01.2024 - v3.2.0
 
 ### USAGE
 #Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
@@ -88,10 +88,10 @@ class PSLM #PowerShell Logging Module
         $this.LogDate = Get-Date -Format "dd/MM/yyyy"
 
 		# Eval. Log Type Fnc
-        $this.PrintToConsole = $PrintToConsole -?? $TRUE
+        $this.PrintToConsole = if ($PrintToConsole -eq $null) { $true } else { $PrintToConsole }
 		
 		# Log type eval
-		$this.LogType = $logType -?? "DEFAULT"
+		$this.LogType = if ($logType -eq $null) { "DEFAULT" } else { $logType }
 		$this.LogType = $this.EvalLogType($this.LogType)
 
 		#Get timestamp format
@@ -123,7 +123,29 @@ class PSLM #PowerShell Logging Module
 		$this.LTProductive  = "ERROR","INFO","CRITICAL"
 		$this.LTError 		= "ERROR"
 		$this.LTCritical 	= "CRITICAL"
+
+		#Check for updates
+		$this.UpdateCheck()
+
     }
+
+	# Check for updates on GitHub
+	[void] UpdateCheck() {
+		$latest = Invoke-RestMethod -Uri "https://api.github.com/repos/nikolai-ahlhelm/powershell-logging-module/releases/latest"
+		
+		#Trim 'v' from version
+		$latestVersion = $latest.tag_name.TrimStart('v')
+
+		# Get ModuleVersion from PSLM.psd1 file with Import-LocalizedData
+		$currentVersion = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1" -BindingVariable ModuleVersion
+
+		#Compare versions
+		if ($latestVersion -ne $currentVersion) {
+			$this.Entry("PSLM-UPDATE","📣 New version available: "+$latestVersion)
+			$this.Entry("PSLM-UPDATE","🌐 Release on GitHub: "+$latest.html_url)
+		}
+	}
+
 
 	# Change log file path
     [void] SetLogFilePath($FilePath) {
@@ -252,7 +274,7 @@ class PSLM #PowerShell Logging Module
 			"WARNING" 	{ $this.logColor = "Yellow" }
 			"CRITICAL" 	{ $this.logColor = "DarkRed" }
 			"DEBUG"		{ $this.logColor = "DarkGreen" }
-			Default 	{ $this.logColor = "Gray" }
+			Default 	{ $this.logColor = "Magenta" }
 		}
 
 
