@@ -12,7 +12,7 @@
 RootModule = 'PSLM.psm1'
 
 # Version number of this module.
-ModuleVersion = '3.1.0'
+ModuleVersion = '3.2.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -24,7 +24,7 @@ GUID = '689f3a83-5648-4a74-9dda-1acfdc0f46af'
 Author = 'Nikolai Ahlhelm'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = ''
 
 # Copyright statement for this module
 Copyright = '(c) Nikolai Ahlhelm. All rights reserved.'

@@ -1,6 +1,8 @@
-# PowerShell Logging Module - Version 3.1.0
+# PowerShell Logging Module - Version 3.2.0
  Logging Module made for Powershell
- 
+
+![PSLM Example Image](img/example.png)
+
 <br>
 
 ## Logentry types (case insensitive) 
@@ -30,63 +32,78 @@
 <br>
 
 ## Contructor
->New-Object -TypeName PSLM -ArgumentList (string:LOGNAME,string:LOGPATH,string:LOGMODE,bool:PRINTTOCONSOLE,string:TIMESTAMPFORMAT)
+### **``New-Object -TypeName PSLM -ArgumentList (string:LOGNAME,string:LOGPATH,string:LOGMODE,bool:PRINTTOCONSOLE,string:TIMESTAMPFORMAT)``**
 
 <br>
 
-### Attributes
+### LOGNAME:  
+**"%yyyy%-%MM%-%dd%-log.txt"**  
+Use: <br> ``%dd%`` : Day,  
+``%MM%`` : months,  
+``%yyyy%`` : year,  
+``%hh%`` : hour,  
+``%m%`` : minutes,  
+``%ss%`` : seconds  
+They will be replaced with the acording value e.g. %yyyy% = 2023
 
-> LOGNAME:  **"%yyyy%-%MM%-%dd%-log.txt"** <br>
-> Use: <br> ``%dd%`` : Day, ``%MM%`` : months, ``%yyyy%`` : year, ``%hh%`` : hour,``%m%`` : minutes, ``%ss%`` : seconds <br>
-> They will be replaced with the acording value e.g. %yyyy% = 2023
+<br>
 
-> LOGPATH: **".\logs\"** or **"C:\the\path\"** <br>
+### LOGPATH: 
+**``".\logs\"``** or **``"C:\the\path\"``**  
 
-> LOGMODE: **"Default"** <br>
-> Choose one of the logmodes listed above.
+<br>
 
-> PRINTTOCONSOLE: **\$TRUE** or **\$FALSE** <br>
-> Enable or disable console output. 
+### LOGMODE:  
+**``"Default"``**  
+Choose one of the logmodes listed above.  
 
-> TIMESTAMPFORMAT: **"default"**
-> Set timestamp forat, use predefined formats: <br>
-> **"default" :** dd-MM-yyyy-HH:mm:ss.ffff <br>
-> **"time" :** <br>
-> **"day" :** <br>
-> Or define your own, for examples check the official Microsoft Docs [here](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.3#examples).
+<br>  
 
+### PRINTTOCONSOLE:  
+**``\$TRUE``** or **``\$FALSE``**  
+Enable or disable console output. 
+
+<br> 
+  
+### TIMESTAMPFORMAT: 
+**``"default"``**
+Set timestamp format, use predefined formats: <br>
+**``"default"``** : dd-MM-yyyy-HH:mm:ss.ffff <br>
+**``"time"``** : <br>
+**``"day"``** : <br>
+Or define your own, for examples check the official Microsoft Docs [here](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.3#examples).
 
 <br>
 
 ---
 
-## Functions
+## Methods
 
 <br>
 
->### Entry(TYPE,MESSAGE)
->Creates a single log entry with timestamp.
+### Entry(TYPE,MESSAGE)  
+Creates a single log entry with timestamp.
 
 <br>
 
->### SetLogFilePath(PATH)
->Set/change the path to the log file.
+### SetLogFilePath(PATH)  
+Set/change the path to the log file.
 
 <br>
 
->### SetConsoleOut(BOOL)
->Activate/Deactivate console output of log mesages.
+### SetConsoleOut(BOOL)  
+Activate/Deactivate console output of log mesages.
 
 <br>
 
->### SetTimeFormat(STRING)
->Set/change the timeformat to a customized format.
+### SetTimeFormat(STRING)  
+Set/change the timeformat to a customized format.
 
 <br>
 
->### LogCleanup(int:RETENTIONDAYS)
->Clean logs that are older than the retention date specified in the constructor. <br>
->Warning: This function deletes **all** files inside the logfoler, that are older than the retentiondays! This also effects non log files, because the tool has no feature to detect if the file is a log file or something else! 
+### LogCleanup(int:RETENTIONDAYS)  
+Clean logs that are older than the retention date specified in the constructor. <br>
+Warning: This function deletes **all** files inside the logfoler, that are older than the retentiondays! This also effects non log files, because the tool has no feature to detect if the file is a log file or something else! 
 
 <br>
 
@@ -96,6 +113,16 @@ _________________
 <br>
 
 # Changelog
+
+## Version 3.2.0
+- Feature: UpdateCheck function, that checks GitHub for a new version of PSLM
+- Feature: Added example image for readme.md
+- Change: Various code optimisations
+- Change: Removed the `"Unknown"` company from the module manifest
+- Change: Custom log types color is now magenta
+- Change: Reworked the README file
+- Fix: Fixed bugs from first commit
+
 
 ## Version 3.1.0
 - Feature: Info bracket colored in darkcyan

@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-# 06.11.2023 - v3.1.0
+# 19.01.2024 - v3.2.0
 
 ### USAGE
 #Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
@@ -69,20 +69,13 @@ class PSLM #PowerShell Logging Module
 
 
 		#Get logFilePath
-		if($null -eq $logFilePath)
-		{
-			$this.LogFilePath = ".\"
-		} else {
-			$this.LogFilePath = $logFilePath
-		}
+		$this.LogFilePath = $logFilePath -ne $null ? $logFilePath : ".\"
 
-		$this.LogFilePath = $logFilePath
 
 		#Check if path has backslash or slash at the end
-		if(-not($this.LogFilePath[$this.LogFilePath.Length-1] -eq "/") -or ($this.LogFilePath[$this.LogFilePath.Length-1] -eq "\")) 
-		{
+		if (-not $this.LogFilePath.EndsWith("/") -and -not $this.LogFilePath.EndsWith("\")){
 			# Append '\'
-			$this.LogFilePath = $this.LogFilePath+"\"
+			$this.LogFilePath += "\"
 		}
 		$this.LogFilePath = Resolve-Path $this.LogFilePath
 
@@ -94,21 +87,12 @@ class PSLM #PowerShell Logging Module
 		# Set LogDate
         $this.LogDate = Get-Date -Format "dd/MM/yyyy"
 
-		### Eval. Log Type Fnc
-        if($null -eq $PrintToConsole)
-		{
-			$this.PrintToConsole = $TRUE
-        } else {
-            $this.PrintToConsole = $PrintToConsole
-        }
+		# Eval. Log Type Fnc
+        $this.PrintToConsole = if ($PrintToConsole -eq $null) { $true } else { $PrintToConsole }
 		
-		#Get logtype
-        if($null -eq $logType)
-		{
-			$this.LogType = "DEFAULT"
-        }else{
-			$this.LogType = $this.EvalLogType($logType)
-		}
+		# Log type eval
+		$this.LogType = if ($logType -eq $null) { "DEFAULT" } else { $logType }
+		$this.LogType = $this.EvalLogType($this.LogType)
 
 		#Get timestamp format
 		if($null -ne $TimestampFormat) 
@@ -139,7 +123,29 @@ class PSLM #PowerShell Logging Module
 		$this.LTProductive  = "ERROR","INFO","CRITICAL"
 		$this.LTError 		= "ERROR"
 		$this.LTCritical 	= "CRITICAL"
+
+		#Check for updates
+		$this.UpdateCheck()
+
     }
+
+	# Check for updates on GitHub
+	[void] UpdateCheck() {
+		$latest = Invoke-RestMethod -Uri "https://api.github.com/repos/nikolai-ahlhelm/powershell-logging-module/releases/latest"
+		
+		#Trim 'v' from version
+		$latestVersion = $latest.tag_name.TrimStart('v')
+
+		# Get ModuleVersion from PSLM.psd1 file with Import-LocalizedData
+		$currentVersion = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1" -BindingVariable ModuleVersion
+
+		#Compare versions
+		if ($latestVersion -ne $currentVersion) {
+			$this.Entry("PSLM-UPDATE","📣 New version available: "+$latestVersion)
+			$this.Entry("PSLM-UPDATE","🌐 Release on GitHub: "+$latest.html_url)
+		}
+	}
+
 
 	# Change log file path
     [void] SetLogFilePath($FilePath) {
@@ -181,51 +187,45 @@ class PSLM #PowerShell Logging Module
 
 
 	[string] EvalLogType($Type) {
-		if ($Type -ieq "DEFAULT" -or $Type -ieq "DEF") {
-            return "DEFAULT"
-        }
-		elseif ($Type -ieq "DEBUG" -or $Type -ieq "DBG") {
-            return "DEBUG"
-        }
-		elseif ($Type -ieq "PRODUCTIVE" -or $Type -ieq "PROD") {
-            return "PRODUCTIVE"
-        }
-		elseif ($Type -ieq "ERROR" -or $Type -ieq "ERR") {
-            return "ERROR"
-        }
-		elseif ($Type -ieq "CRITICAL" -or $Type -ieq "CRIT") {
-            return "CRITICAL"
-        }
-		elseif ($Type -ieq "NONE") {
-            return "NONE"
-        }
-		else
-		{
-			return "DEFAULT"
+		$Type = $Type.ToUpper()
+		$logTypeMap = @{
+			"DEFAULT" = "DEFAULT"
+			"DEF" = "DEFAULT"
+			"DEBUG" = "DEBUG"
+			"DBG" = "DEBUG"
+			"PRODUCTIVE" = "PRODUCTIVE"
+			"PROD" = "PRODUCTIVE"
+			"ERROR" = "ERROR"
+			"ERR" = "ERROR"
+			"CRITICAL" = "CRITICAL"
+			"CRIT" = "CRITICAL"
+			"NONE" = "NONE"
 		}
+	
+		return $logTypeMap[$Type] -ne $null ? $logTypeMap[$Type] : "DEFAULT"
 	}
 
 	# SelectEntryType | called by $this.Entry
 	[string] SelectEntryType($Type) {
-		if ($Type -ieq "ERROR" -or $Type -ieq "err" -or $Type -ieq "e") {
-            $messageType = "ERROR"
-        }
-        elseif ($Type -ieq "INFO" -or $Type -ieq "inf" -or $Type -ieq "i") {
-            $messageType = "INFO"
-        }
-        elseif ($Type -ieq "WARN" -or $Type -ieq "warning" -or $Type -ieq "w") {
-            $messageType = "WARNING"
-        }
-        elseif ($Type -ieq "CRIT" -or $Type -ieq "critical" -or $Type -ieq "c") {
-            $messageType = "CRITICAL"
-        }
-		elseif ($Type -ieq "DBG" -or $Type -ieq "debug" -or $Type -ieq "d") {
-            $messageType = "DEBUG"
-        }
-        else {
-            $messageType = $Type
-        }
-		return $messageType
+		$Type = $Type.ToUpper()
+		$entryTypeMap = @{
+			"ERROR" = "ERROR"
+			"ERR" = "ERROR"
+			"E" = "ERROR"
+			"INFO" = "INFO"
+			"INF" = "INFO"
+			"I" = "INFO"
+			"WARN" = "WARNING"
+			"WARNING" = "WARNING"
+			"W" = "WARNING"
+			"CRIT" = "CRITICAL"
+			"CRITICAL" = "CRITICAL"
+			"C" = "CRITICAL"
+			"DBG" = "DEBUG"
+			"DEBUG" = "DEBUG"
+			"D" = "DEBUG"
+		}
+		return $entryTypeMap[$Type] -ne $null ? $entryTypeMap[$Type] : $Type
 	}
 
 
@@ -274,7 +274,7 @@ class PSLM #PowerShell Logging Module
 			"WARNING" 	{ $this.logColor = "Yellow" }
 			"CRITICAL" 	{ $this.logColor = "DarkRed" }
 			"DEBUG"		{ $this.logColor = "DarkGreen" }
-			Default 	{ $this.logColor = "Gray" }
+			Default 	{ $this.logColor = "Magenta" }
 		}
 
 
