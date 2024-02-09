@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-# 19.01.2024 - v3.2.0
+# 09.02.2024 - v3.3.0
 
 ### USAGE
 #Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
@@ -300,6 +300,14 @@ class PSLM #PowerShell Logging Module
             $this.WriteColor($MessageArray, $colors)
         }
 	}
+
+	### Interfaces for Entry() ###
+	[void] Info($Message) { $this.Entry("Info",$Message) }
+	[void] Warn($Message) { $this.Entry("Warning",$Message) }
+	[void] Error($Message) { $this.Entry("Error",$Message) }
+	[void] Crit($Message) { $this.Entry("Critical",$Message) }
+	[void] Debug($Message) { $this.Entry("Debug",$Message) }
+
 
 	# $PSLM.LogCleanup(n) > deletes logs older than 14 n days
 	[void] LogCleanup($RetentionDays)

@@ -1,7 +1,12 @@
-# PowerShell Logging Module - Version 3.2.0
+# PowerShell Logging Module - Version 3.3.0
  Logging Module made for Powershell
 
 ![PSLM Example Image](img/example.png)
+
+<br>
+<br
+
+![Pwsh5 Warning](img/ps5-warn.png)
 
 <br>
 
@@ -83,6 +88,13 @@ Or define your own, for examples check the official Microsoft Docs [here](https:
 
 ### Entry(TYPE,MESSAGE)  
 Creates a single log entry with timestamp.
+<br>
+#### Interfaces (Used to give your code a cleaner look)
+``Info(MESSAGE)``
+``Debug(MESSAGE)``
+``Warning(MESSAGE)``
+``Critical(MESSAGE)``
+``Error(MESSAGE)``
 
 <br>
 
@@ -113,6 +125,13 @@ _________________
 <br>
 
 # Changelog
+
+## Version 3.3.0
+- Feature: 5 new interfaces for the entry function (Info, Warn, Error, Crit, Debug)
+- Feature: New interface examples to example.ps1
+- Feature: Warning image in readme.md about use of PowerShell 5
+- Change: $Log to $PSLM in the example.ps1
+- Change: readme file updated to 3.3.0
 
 ## Version 3.2.0
 - Feature: UpdateCheck function, that checks GitHub for a new version of PSLM
