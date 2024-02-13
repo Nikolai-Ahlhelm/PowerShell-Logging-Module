@@ -6,23 +6,24 @@
 #Import PSLM like this:
 Using module .\PSLM.psd1
 
-#Arguments: LogName[STRING], LogPath[STRING], LogMode[STRING], PrintToConsole[BOOL], [string] $TimestampFormat, RetentionDays[INT]
+#Arguments: LogName[STRING], LogPath[STRING], LogMode[STRING], PrintToConsole[BOOL], [string] $TimestampFormat
 #LogPath: when using relative paths use  .\[DIRNAME]\  else you'll get errors.
-$PSLM = New-Object -TypeName PSLM -ArgumentList ("TEST-log-%hh%-%mm%-%ss%.txt", ".\", "DEBUG", $TRUE, "default")
+$PSLM = New-Object -TypeName PSLM -ArgumentList ("TEST-log-%hh%-%m%-%ss%.txt", ".\", "DEBUG", $TRUE, "default")
 
-$PSLM.Entry("Info", "Logging Mode: "+$Log.LogTypes)
+$PSLM.Entry("Info", "Logging Mode: "+$PSLM.LogType)
+$PSLM.Entry("Info", "Log Path: "+$PSLM.LogFileFullPath)
 $PSLM.Entry("Info", "Info Test Message")
 $PSLM.Entry("DEBUG", "Debug Test Message")
 $PSLM.Entry("w", "Warning Test Message")
-$PSLM.Entry("w", "🔥You can use emojis to make your logs more interesting")
+$PSLM.Entry("w", "🔥 You can use emojis to make your logs more interesting")
 $PSLM.Entry("crit", "Critical Test Message")
 $PSLM.Entry("Error", "Error Test Message")
 
 # New Interfaces added in 3.3.0
 $PSLM.Info("Info function test")
 $PSLM.Debug("Debug function test")
-$PSLM.Warning("Warning function test")
-$PSLM.Critical("Critical function test")
+$PSLM.Warn("Warning function test")
+$PSLM.Crit("Critical function test")
 $PSLM.Error("Error function test")
 
 #Log Cleanup function | Arguments: RetentionDays[INT] (maximum age in days)
