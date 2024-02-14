@@ -1,4 +1,4 @@
-# PowerShell Logging Module - Version 3.3.0
+# PowerShell Logging Module - Version 3.3.1
  Logging Module made for Powershell
 
 ![PSLM Example Image](img/example.png)
@@ -125,6 +125,10 @@ _________________
 <br>
 
 # Changelog
+
+## Version 3.3.1
+- Fixed: Relative paths not working Relative paths not working - missing backslash between path and file name #38
+- Fixed: Version check not getting installed version UpdateCheck not detecting that v3.3.0 is already present #37
 
 ## Version 3.3.0
 - Feature: 5 new interfaces for the entry function (Info, Warn, Error, Crit, Debug)
