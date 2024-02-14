@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-# 09.02.2024 - v3.3.0
+# 14.02.2024 - v3.3.1
 
 ### USAGE
 #Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
@@ -66,11 +66,10 @@ class PSLM #PowerShell Logging Module
 		#Set seconds
 		$this.LogFileName = $this.LogFileName -replace "%ss%",((Get-Date -Format "ss").ToString())
 
-
+		
 
 		#Get logFilePath
 		$this.LogFilePath = $logFilePath -ne $null ? $logFilePath : ".\"
-
 
 		#Check if path has backslash or slash at the end
 		if (-not $this.LogFilePath.EndsWith("/") -and -not $this.LogFilePath.EndsWith("\")){
@@ -78,11 +77,9 @@ class PSLM #PowerShell Logging Module
 			$this.LogFilePath += "\"
 		}
 		$this.LogFilePath = Resolve-Path $this.LogFilePath
-
+		
 		# Set full log path
-		$this.LogFileFullPath = $this.LogFilePath+$this.LogFileName
-		#DEBUG#Write-Host "Path:" $this.LogFilePath "  Name:" $this.LogFileName
-
+		$this.LogFileFullPath = $this.LogFilePath+"\"+$this.LogFileName
 
 		# Set LogDate
         $this.LogDate = Get-Date -Format "dd/MM/yyyy"
@@ -137,13 +134,16 @@ class PSLM #PowerShell Logging Module
 		$latestVersion = $latest.tag_name.TrimStart('v')
 
 		# Get ModuleVersion from PSLM.psd1 file with Import-LocalizedData
-		$currentVersion = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1" -BindingVariable ModuleVersion
+		$psdData = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1"
+		$currentVersion = $psdData.ModuleVersion
 
 		#Compare versions
 		if ($latestVersion -ne $currentVersion) {
 			$this.Entry("PSLM-UPDATE","📣 New version available: "+$latestVersion)
 			$this.Entry("PSLM-UPDATE","🌐 Release on GitHub: "+$latest.html_url)
-		}
+		} #else {
+			#$this.Entry("PSLM-UPDATE","✅ Newest version already installed ($currentVersion)")
+		#}
 	}
 
 
