@@ -137,13 +137,16 @@ class PSLM #PowerShell Logging Module
 		$latestVersion = $latest.tag_name.TrimStart('v')
 
 		# Get ModuleVersion from PSLM.psd1 file with Import-LocalizedData
-		$currentVersion = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1" -BindingVariable ModuleVersion
+		$psdData = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1"
+		$currentVersion = $psdData.ModuleVersion
 
 		#Compare versions
 		if ($latestVersion -ne $currentVersion) {
 			$this.Entry("PSLM-UPDATE","📣 New version available: "+$latestVersion)
 			$this.Entry("PSLM-UPDATE","🌐 Release on GitHub: "+$latest.html_url)
-		}
+		} #else {
+			#$this.Entry("PSLM-UPDATE","✅ Newest version already installed ($currentVersion)")
+		#}
 	}
 
 
