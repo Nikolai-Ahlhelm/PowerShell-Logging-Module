@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-# 14.02.2024 - v3.3.1
+# 23.07.2024 - v3.4.0
 
 ### USAGE
 #Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
@@ -69,7 +69,7 @@ class PSLM #PowerShell Logging Module
 		
 
 		#Get logFilePath
-		$this.LogFilePath = $logFilePath -ne $null ? $logFilePath : ".\"
+		$this.LogFilePath = $null -ne $logFilePath ? $logFilePath : ".\"
 
 		#Check if path has backslash or slash at the end
 		if (-not $this.LogFilePath.EndsWith("/") -and -not $this.LogFilePath.EndsWith("\")){
@@ -85,10 +85,10 @@ class PSLM #PowerShell Logging Module
         $this.LogDate = Get-Date -Format "dd/MM/yyyy"
 
 		# Eval. Log Type Fnc
-        $this.PrintToConsole = if ($PrintToConsole -eq $null) { $true } else { $PrintToConsole }
+        $this.PrintToConsole = if ($null -eq $PrintToConsole) { $true } else { $PrintToConsole }
 		
 		# Log type eval
-		$this.LogType = if ($logType -eq $null) { "DEFAULT" } else { $logType }
+		$this.LogType = if ($null -eq $logType) { "DEFAULT" } else { $logType }
 		$this.LogType = $this.EvalLogType($this.LogType)
 
 		#Get timestamp format
@@ -122,29 +122,82 @@ class PSLM #PowerShell Logging Module
 		$this.LTCritical 	= "CRITICAL"
 
 		#Check for updates
-		$this.UpdateCheck()
+		$this.IsUpdateAvailable()
 
     }
 
-	# Check for updates on GitHub
-	[void] UpdateCheck() {
-		$latest = Invoke-RestMethod -Uri "https://api.github.com/repos/nikolai-ahlhelm/powershell-logging-module/releases/latest"
-		
+	[psobject] GetLatestVersionInfo() {
+		return Invoke-RestMethod -Uri "https://api.github.com/repos/nikolai-ahlhelm/powershell-logging-module/releases/latest"	
+	}
+
+	[string] GetLatestFormattedVersion() { #Return trimmed version (without 'v')
+		$latest = $this.GetLatestVersionInfo()
 		#Trim 'v' from version
-		$latestVersion = $latest.tag_name.TrimStart('v')
+		return $latest.tag_name.TrimStart('v')
+	}
+
+	[string] GetInstalledVersion() { #Return version from PSLM.psd1
+		$psdData = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1"
+		return $psdData.ModuleVersion
+	}
+
+	[bool] IsOldVersionInstalled() { #Return $true if an old (version mismatch) version is installed else $false
+		$latestVersion = $this.GetLatestVersionInfo()
 
 		# Get ModuleVersion from PSLM.psd1 file with Import-LocalizedData
 		$psdData = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "PSLM.psd1"
 		$currentVersion = $psdData.ModuleVersion
 
-		#Compare versions
-		if ($latestVersion -ne $currentVersion) {
-			$this.Entry("PSLM-UPDATE","📣 New version available: "+$latestVersion)
-			$this.Entry("PSLM-UPDATE","🌐 Release on GitHub: "+$latest.html_url)
-		} #else {
-			#$this.Entry("PSLM-UPDATE","✅ Newest version already installed ($currentVersion)")
-		#}
+		if ($this.GetLatestFormattedVersion() -ne $this.GetInstalledVersion()) {
+			return $true
+		}
+		return $false
 	}
+
+	# Check for updates on GitHub
+	[bool] IsUpdateAvailable() {
+		#Compare versions
+		if ($this.IsOldVersionInstalled()) {
+			$this.Entry("PSLM-UPDATE","📣 New version available: "+$latestVersion)
+			$this.Entry("PSLM-UPDATE","🌐 Release on GitHub: "+$this.GetLatestVersionInfo.html_url)
+			return $true
+		}
+		return $false
+
+	}
+
+	[void] DownloadFile($url, $outputPath) #Download via invoke webrequest
+	{
+		Invoke-WebRequest -Uri $url -OutFile $outputPath 
+	}
+
+	[void] UpdatePSLM($forceUpdate)
+	{
+		$forceUpdate = if ($null -eq $forceUpdate) { $false } else { $forceUpdate }
+
+		# Execute update check or force update
+		# Check if an update is available or force update
+		if ($this.IsUpdateAvailable() -or $forceUpdate) {
+			$latest = $this.GetLatestVersionInfo()
+
+			$urlPart1 = "https://github.com/Nikolai-Ahlhelm/PowerShell-Logging-Module/releases/download/"
+			$urlPart2 = $latest.tag_name
+			$downloadFiles = @("/PSLM.psm1", "/PSLM.psd1")
+			
+			$this.Entry("PSLM-UPDATE","🔄️ Updating to version: "+$latest.tag_name)
+
+			# Download and update each file
+			foreach ($file in $downloadFiles) {
+				$downloadUrl = $urlPart1+$urlPart2+$file
+				$downloadPath = "."+$file
+				
+				$this.DownloadFile($downloadUrl, $downloadPath)
+				$this.Entry("PSLM-UPDATE","📄 $file downloaded to: "+$downloadPath)
+			}
+			$this.Entry("PSLM-UPDATE","🚀 Update complete . Update will be applied at next script execution.")
+		}
+	}
+
 
 
 	# Change log file path
@@ -202,7 +255,7 @@ class PSLM #PowerShell Logging Module
 			"NONE" = "NONE"
 		}
 	
-		return $logTypeMap[$Type] -ne $null ? $logTypeMap[$Type] : "DEFAULT"
+		return $null -ne $logTypeMap[$Type] ? $logTypeMap[$Type] : "DEFAULT"
 	}
 
 	# SelectEntryType | called by $this.Entry
@@ -225,7 +278,7 @@ class PSLM #PowerShell Logging Module
 			"DEBUG" = "DEBUG"
 			"D" = "DEBUG"
 		}
-		return $entryTypeMap[$Type] -ne $null ? $entryTypeMap[$Type] : $Type
+		return $null -ne $entryTypeMap[$Type] ? $entryTypeMap[$Type] : $Type
 	}
 
 
@@ -349,4 +402,25 @@ class PSLM #PowerShell Logging Module
 		$this.Entry("i", "$cleanedFiles delete by LogCleanp")
 
 	}
+
+	#DevMode | Execute DevTest
+	[void] DevMode()
+	{
+		$this.LogType = "DEBUG"
+		$this.Entry("DEVMODE","🧪 DevMode enabled")
+
+		# Test Download
+		try {
+			$this.Entry("DEVMODE","🔎 Testing UpdatePSLM function")
+			$this.UpdatePSLM($true) #Force Update
+			$this.Entry("DEVMODE","✅ UpdatePSLM test passed")	
+		}
+		catch {
+			$this.Entry("DEVMODE","❌ UpdatePSLM test failed: $_")
+		}
+		
+	}
+
 }
+
+

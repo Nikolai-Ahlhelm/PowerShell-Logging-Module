@@ -1,4 +1,4 @@
-# PowerShell Logging Module - Version 3.3.1
+# PowerShell Logging Module - Version 3.4.0
  Logging Module made for Powershell.  
  For easy logging into the shell and files.
 
@@ -159,12 +159,27 @@ This method is for cleaning logs that are older than the retention date specifie
 
 <br>
 
+### 🔄️ UpdatePSLM(bool:FORCEUPDATE)  
+⚠️ This function is highly experimental! <br> 
+Though it shouldn’t break something, it can, so use this at your own risk! <br> 
+<br> 
+Requirements for this function to work:
+<br> 
+All PSLM files need to be in the same directory as the script where the PSLM is instantiated (because at the moment there is no functionality to detect where the PSLM files are stored, this will be added in the future)
+Access to ``github.com`` and ``api.github.com`` 
+<br> This function checks before execution if an update is available; otherwise, it won’t update, except the **FORCEUPDATE** is set to ``true``
+                  
+<br>
 _________________
 
 
 <br>
 
 # 📒 Changelog
+
+## Version 3.4.0 
+- Feature: Auto-update functionality that allows scripts to automatically update to the newest PSLM version #40
+- Feature: DevMode function for testing
 
 ## Version 3.3.1
 - Fixed: Relative paths not working Relative paths not working - missing backslash between path and file name #38

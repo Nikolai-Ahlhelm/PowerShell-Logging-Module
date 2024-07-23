@@ -10,6 +10,8 @@ Using module .\PSLM.psd1
 #LogPath: when using relative paths use  .\[DIRNAME]\  else you'll get errors.
 $PSLM = New-Object -TypeName PSLM -ArgumentList ("TEST-log-%hh%-%m%-%ss%.txt", ".\", "DEBUG", $TRUE, "default")
 
+$PSLM.UpdatePSLM()
+
 $PSLM.Entry("Info", "Logging Mode: "+$PSLM.LogType)
 $PSLM.Entry("Info", "Log Path: "+$PSLM.LogFileFullPath)
 $PSLM.Entry("Info", "Info Test Message")
