@@ -1,5 +1,5 @@
 ### PowerShell Logging Module
-# 23.07.2024 - v3.4.0
+# 22.08.2024 - v3.4.0
 
 ### USAGE
 #Import Module:		Using module ".\PSLM.psd1" (Must be the first line!)
@@ -158,7 +158,7 @@ class PSLM #PowerShell Logging Module
 	[bool] IsUpdateAvailable() {
 		#Compare versions
 		if ($this.IsOldVersionInstalled()) {
-			$this.Entry("PSLM-UPDATE","📣 New version available: "+$latestVersion)
+			$this.Entry("PSLM-UPDATE","📣 New version available: "+$this.GetLatestFormattedVersion())
 			$this.Entry("PSLM-UPDATE","🌐 Release on GitHub: "+$this.GetLatestVersionInfo.html_url)
 			return $true
 		}
