@@ -124,6 +124,10 @@ class PSLM #PowerShell Logging Module
 		#Check for updates
 		$this.IsUpdateAvailable()
 
+		#PostUpdateCleanup
+		if(Test-Path -Path "$PSScriptRoot\.PSLM_Update_Completed") {
+			$this.PostUpdateCleanup()
+		}
     }
 
 	[psobject] GetLatestVersionInfo() {
@@ -175,9 +179,27 @@ class PSLM #PowerShell Logging Module
 	{
 		$forceUpdate = if ($null -eq $forceUpdate) { $false } else { $forceUpdate }
 
+		$latest = $this.GetLatestVersionInfo()
+
+		if($this.IsUpdateAvailable() -or $forceUpdate) {
+			$this.Entry("PSLM-UPDATE","🔄️ Updating to version: "+$latest.tag_name)
+			$trimmedTag = $latest.tag_name.TrimStart('v')
+			$UpdateModuleUrl = "https://raw.githubusercontent.com/Nikolai-Ahlhelm/PowerShell-Logging-Module/refs/heads/main/Update-Module/Update-Module-$trimmedTag.ps1"
+			$this.DownloadFile($UpdateModuleUrl, "$env:PSScriptRoot\PSLM-Update-Module.ps1")
+			$this.Entry("PSLM-UPDATE","📄 Update script downloaded to: "+"$env:PSScriptRoot\Update-Module.ps1")
+			$this.Entry("PSLM-UPDATE","🚀 Update script will be executed now...")
+			# Execute the update script with start process powershell 7 
+			Start-Process -FilePath "pwsh" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$env:PSScriptRoot\Update-Module.ps1`"" -Wait
+			# Exit current pwsh session
+			Exit 0
+		}
+		$this.Entry("PSLM-UPDATE","✅ No update available. Current version is up to date: "+$this.GetInstalledVersion())
+
+
+
 		# Execute update check or force update
 		# Check if an update is available or force update
-		if ($this.IsUpdateAvailable() -or $forceUpdate) {
+		<#if ($this.IsUpdateAvailable() -or $forceUpdate) {
 			$latest = $this.GetLatestVersionInfo()
 
 			$urlPart1 = "https://github.com/Nikolai-Ahlhelm/PowerShell-Logging-Module/releases/download/"
@@ -195,9 +217,28 @@ class PSLM #PowerShell Logging Module
 				$this.Entry("PSLM-UPDATE","📄 $file downloaded to: "+$downloadPath)
 			}
 			$this.Entry("PSLM-UPDATE","🚀 Update complete . Update will be applied at next script execution.")
-		}
+		}#>
 	}
 
+	[void] PostUpdateCleanup() {
+		# Remove the Update-Module script
+		$files = Get-ChildItem -Path $PSScriptRoot -File
+		foreach ($file in $files) {
+			if ($file.Name -like "*PSLM-Update-Module.ps1*") {
+				try {
+					Remove-Item -Path $file.FullName -Force
+					$this.Entry("PSLM-UPDATE","🗑️ Removed update script: "+$file.Name)
+				}
+				catch {
+					$this.Entry("PSLM-UPDATE","❌ Failed to remove update script: "+$file.Name+" >> "+$_.Exception.Message)
+				}
+			}
+			elseif ($file.Name -like ".PSLM_Update_Completed") {
+				this.Entry("PSLM-UPDATE","🎉 Update marker found, update complete 🎉")
+				Remove-Item -Path $file.FullName -Force
+			}
+		}
+	}
 
 
 	# Change log file path
