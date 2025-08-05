@@ -162,14 +162,17 @@ This method is for cleaning logs that are older than the retention date specifie
 ### 🔄️ UpdatePSLM(bool:FORCEUPDATE)  
 ⚠️ This function is highly experimental! <br> 
 Though it shouldn’t break something, it can, so use this at your own risk! <br> 
+This function checks before execution if an update is available; otherwise, it won’t update, except the **FORCEUPDATE** is set to ``true`` 
 <br> 
-Requirements for this function to work:
+**Requirements** for this function to work:
 <br> 
-All PSLM files need to be in the same directory as the script where the PSLM is instantiated (because at the moment there is no functionality to detect where the PSLM files are stored, this will be added in the future)
-Access to ``github.com`` and ``api.github.com`` 
-<br> This function checks before execution if an update is available; otherwise, it won’t update, except the **FORCEUPDATE** is set to ``true``
+- All PSLM files need to be in the same directory as the script where the PSLM is instantiated (because at the moment there is no functionality to detect where the PSLM files are stored, this will be added in the future)  
+- Access to ``github.com`` and ``api.github.com``  
+<br>  
+
                   
 <br>
+ 
 _________________
 
 
